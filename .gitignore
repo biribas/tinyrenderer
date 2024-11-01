@@ -1,4 +1,4 @@
 bin
 build
-out
+*.tga
 compile_flags.txt
