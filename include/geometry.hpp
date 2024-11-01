@@ -6,7 +6,7 @@
 
 template <class t> struct Vec2 {
 	union {
-		struct { t u, v; } value;
+		struct { t x, y; } value;
 		t raw[2];
 	};
 
@@ -14,13 +14,13 @@ template <class t> struct Vec2 {
   Vec2(t _u, t _v) : value{_u, _v} {}
 
   inline Vec2<t> operator+(const Vec2<t> &V) const {
-    return Vec2<t>(value.u + V.value.u, value.v + V.value.v);
+    return Vec2<t>(value.x + V.value.x, value.y + V.value.y);
   }
   inline Vec2<t> operator-(const Vec2<t> &V) const {
-    return Vec2<t>(value.u - V.value.u, value.v - V.value.v);
+    return Vec2<t>(value.x - V.value.x, value.y - V.value.y);
   }
   inline Vec2<t> operator*(float f) const {
-    return Vec2<t>(value.u * f, value.v * f);
+    return Vec2<t>(value.x * f, value.y * f);
   }
   template <class> friend std::ostream &operator<<(std::ostream &s, Vec2<t> &v);
 };
