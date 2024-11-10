@@ -15,21 +15,51 @@ void triangle(Vec2i v0, Vec2i v1, Vec2i v2, TGAImage &image, TGAColor color) {
   int x_max = std::max(std::max(v0.value.x, v1.value.x), v2.value.x);
   int y_max = std::max(std::max(v0.value.y, v1.value.y), v2.value.y);
   
-  int bias0 = is_top_left(v1 - v0) ? 0 : -1;
-  int bias1 = is_top_left(v2 - v1) ? 0 : -1;
-  int bias2 = is_top_left(v0 - v2) ? 0 : -1;
+  int delta_w_col[] = {
+    v1.value.y - v2.value.y,
+    v2.value.y - v0.value.y,
+    v0.value.y - v1.value.y
+  };
+
+  int delta_w_row[] = {
+    v2.value.x - v1.value.x,
+    v0.value.x - v2.value.x,
+    v1.value.x - v0.value.x
+  };
+
+  // Bias values based on top-left rule
+  int bias[3] = {
+    is_top_left(v2 - v1) ? 0 : -1,
+    is_top_left(v0 - v2) ? 0 : -1,
+    is_top_left(v1 - v0) ? 0 : -1
+  };
+  
+  // Initialize starting values for barycentric weights
+  Vec2i p0(x_min, y_min);
+  int w_row[3] = {
+    ((v2 - v1) ^ (p0 - v1)) + bias[0],
+    ((v0 - v2) ^ (p0 - v2)) + bias[1],
+    ((v1 - v0) ^ (p0 - v0)) + bias[2]
+  };
   
   for (int y = y_min; y <= y_max; y++) {
+    // Barycentric Weights
+    int w[3] = {w_row[0], w_row[1], w_row[2]};
+
     for (int x = x_min; x <= x_max; x++) {
-      Vec2i p(x, y);
-      
-      // Barycentric Weights
-      int w0 = ((v1 - v0) ^ (p - v0)) + bias0;
-      int w1 = ((v2 - v1) ^ (p - v1)) + bias1;
-      int w2 = ((v0 - v2) ^ (p - v2)) + bias2;
-      
-      if (w0 < 0 || w1 < 0 || w2 < 0) continue;
-      image.set(x, y, color);
+      if (w[0] >= 0 && w[1] >= 0 && w[2] >= 0) {
+        image.set(x, y, color);
+      }
+
+      // Update barycentric weights for the next point in the row
+      for (int i = 0; i < 3; i++) {
+        w[i] += delta_w_col[i];
+      }
+    }
+
+    // Update barycentric weights for the next row
+    for (int i = 0; i < 3; i++) {
+      w_row[i] += delta_w_row[i];
     }
   }
 }
