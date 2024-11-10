@@ -2,7 +2,10 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+
+#include <geometry.hpp>
 #include <model.hpp>
+#include <gl.hpp>
 
 Model::Model(const char *filename) : verts_(), faces_() {
   std::ifstream in;
@@ -33,6 +36,11 @@ Model::Model(const char *filename) : verts_(), faces_() {
         idx--; // in wavefront obj all indices start at 1, not zero
         f.push_back(idx);
       }
+      
+      if (!is_triangle_clockwise(verts_[f[0]], verts_[f[1]], verts_[f[2]])) {
+        std::swap(f[1], f[2]);
+      }
+      
       faces_.push_back(f);
     }
   }
