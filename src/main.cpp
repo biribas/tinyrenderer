@@ -31,32 +31,32 @@ void triangle(Vec2i v0, Vec2i v1, Vec2i v2, TGAImage &image, TGAColor color) {
   }
 }
 
-void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
+void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
   bool steep = false;
-  if (std::abs(x0 - x1) < std::abs(y0 - y1)) {
-    std::swap(x0, y0);
-    std::swap(x1, y1);
+  if (std::abs(p0.value.x - p1.value.x) < std::abs(p0.value.y - p1.value.y)) {
+    std::swap(p0.value.x, p0.value.y);
+    std::swap(p1.value.x, p1.value.y);
     steep = true;
   }
 
-  if (x0 > x1) {
-    std::swap(x0, x1);
-    std::swap(y0, y1);
+  if (p0.value.x > p1.value.x) {
+    std::swap(p0.value.x, p1.value.x);
+    std::swap(p0.value.y, p1.value.y);
   }
 
-  int dy = y1 - y0;
-  int dx = x1 - x0;
+  int dy = p1.value.y - p0.value.y;
+  int dx = p1.value.x - p0.value.x;
   int derr = std::abs(dy) * 2;
   int error = 0;
-  int y = y0;
+  int y = p0.value.y;
 
-  for (int x = x0; x <= x1; x++) {
+  for (int x = p0.value.x; x <= p1.value.x; x++) {
     if (steep) image.set(y, x, color);
     else image.set(x, y, color);
 
     error += derr;
     if (error > dx) {
-      y += (y1 > y0 ? 1 : -1);
+      y += (p1.value.y > p0.value.y ? 1 : -1);
       error -= 2 * dx;
     }
   }
