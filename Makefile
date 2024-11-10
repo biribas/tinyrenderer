@@ -19,6 +19,9 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo "Building $<"
 	@mkdir -p $(BUILDDIR)
 	@g++ -c $(FLAGS) $< -o $@
+	
+run:
+	./bin/tiny
 
 clean:
 	@$(RM) -rfv $(BUILDDIR) $(TARGETDIR)
