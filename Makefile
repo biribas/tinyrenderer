@@ -7,7 +7,7 @@ OBJECTS = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(SOURCES))
 TARGETDIR = bin
 TARGET = tiny
 
-FLAGS = -Wall -Wextra -pedantic -I./include
+FLAGS = -O3 -Wall -Wextra -pedantic -I./include
 
 $(TARGET): $(OBJECTS)
 	@echo "Linking files..."
