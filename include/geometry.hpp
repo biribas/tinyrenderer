@@ -41,6 +41,7 @@ template <class t> struct Vec3 {
 
   Vec3() : value{0, 0, 0} {}
   Vec3(t _x, t _y, t _z) : value{_x, _y, _z} {}
+  Vec3(const Vec2<t> &v, t z = 0) : value{v.value.x, v.value.y, z} {}
   
   inline Vec3<t> operator^(const Vec3<t> &v) const {
     return Vec3<t>(value.y * v.value.z - value.z * v.value.y,
