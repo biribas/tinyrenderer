@@ -1,35 +1,31 @@
 #include <model.hpp>
 #include <tgaimage.hpp>
-
-#include <utility>
+#include <geometry.hpp>
 
 const TGAColor red = TGAColor(255, 0, 0, 255);
 const TGAColor blue = TGAColor(0, 0, 255, 255);
 const TGAColor white = TGAColor(255, 255, 255, 255);
-const int width = 200;
-const int height = 200;
+const int width = 3840;
+const int height = 2160;
 Model *model = NULL;
 
 void triangle(Vec2i v0, Vec2i v1, Vec2i v2, TGAImage &image, TGAColor color) {
-  if (v0.value.y > v1.value.y) std::swap(v0, v1);
-  if (v1.value.y > v2.value.y) std::swap(v1, v2);
-  if (v0.value.y > v1.value.y) std::swap(v0, v1);
+  // Finding the bounding box
+  int x_min = std::min(std::min(v0.value.x, v1.value.x), v2.value.x);
+  int y_min = std::min(std::min(v0.value.y, v1.value.y), v2.value.y);
+  int x_max = std::max(std::max(v0.value.x, v1.value.x), v2.value.x);
+  int y_max = std::max(std::max(v0.value.y, v1.value.y), v2.value.y);
   
-  int first_height = v1.value.y - v0.value.y;
-  int second_height = v2.value.y - v1.value.y;
-  int total_heigh = first_height + second_height;
-
-  for (int y = v0.value.y; y <= v2.value.y; y++) {
-    bool second_half = (y > v1.value.y) || (v1.value.y == v0.value.y);
-    int segment_height = second_half ? second_height : first_height;
-
-    float alpha = (float)(y - v0.value.y) / total_heigh;
-    float beta = (float)(y - (second_half ? v1.value.y : v0.value.y)) / segment_height;
-    
-    Vec2i A = v0 + (v2 - v0) * alpha;
-    Vec2i B = second_half ? v1 + (v2 - v1) * beta : v0 + (v1 - v0) * beta;
-    if (A.value.x > B.value.x) std::swap(A.value.x, B.value.x);
-    for (int x = A.value.x; x <= B.value.x; x++) {
+  for (int y = y_min; y <= y_max; y++) {
+    for (int x = x_min; x <= x_max; x++) {
+      Vec2i p(x, y);
+      
+      // Barycentric Weights
+      int w0 = (v1 - v0) ^ (p - v0);
+      int w1 = (v2 - v1) ^ (p - v1);
+      int w2 = (v0 - v2) ^ (p - v2);
+      
+      if (w0 < 0 || w1 < 0 || w2 < 0) continue;
       image.set(x, y, color);
     }
   }
@@ -72,13 +68,15 @@ int main(int argc, char **argv) {
 
   TGAImage image(width, height, TGAImage::RGB);
 
-  Vec2i t0[3] = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)}; 
-  Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)}; 
-  Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)}; 
-
-  triangle(t0[0], t0[1], t0[2], image, red); 
-  triangle(t1[0], t1[1], t1[2], image, blue); 
-  triangle(t2[0], t2[1], t2[2], image, white);
+  for (int i = 0; i < model->nfaces(); i++) { 
+    std::vector<int> face = model->face(i); 
+    Vec2i screen_coords[3]; 
+    for (int j = 0; j < 3; j++) { 
+      Vec3f world_coords = model->vert(face[j]); 
+      screen_coords[j] = Vec2i((world_coords.value.x + 1.) * width / 2., (world_coords.value.y + 1.) * height / 2.); 
+    } 
+    triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(rand() % 0xFF, rand() % 0xFF, rand() % 0xFF, 0xFF)); 
+  }
 
   image.flip_vertically();
   image.write_tga_file("output.tga");
