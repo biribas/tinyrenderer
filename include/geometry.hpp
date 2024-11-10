@@ -4,6 +4,9 @@
 #include <cmath>
 #include <ostream>
 
+// Forward declaration of Vec3
+template <class t> struct Vec3;
+
 template <class t> struct Vec2 {
 	union {
 		struct { t x, y; } value;
@@ -12,6 +15,7 @@ template <class t> struct Vec2 {
 
   Vec2() : value{0, 0} {}
   Vec2(t _u, t _v) : value{_u, _v} {}
+  Vec2(const Vec3<t> &v) : value{v.value.x, v.value.y} {}
   
   inline t operator^(const Vec2<t> &V) const {
     return value.x * V.value.y - value.y * V.value.x;
