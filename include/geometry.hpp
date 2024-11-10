@@ -12,16 +12,23 @@ template <class t> struct Vec2 {
 
   Vec2() : value{0, 0} {}
   Vec2(t _u, t _v) : value{_u, _v} {}
+  
+  inline t operator^(const Vec2<t> &V) const {
+    return value.x * V.value.y - value.y * V.value.x;
+  }
 
   inline Vec2<t> operator+(const Vec2<t> &V) const {
     return Vec2<t>(value.x + V.value.x, value.y + V.value.y);
   }
+
   inline Vec2<t> operator-(const Vec2<t> &V) const {
     return Vec2<t>(value.x - V.value.x, value.y - V.value.y);
   }
+
   inline Vec2<t> operator*(float f) const {
     return Vec2<t>(value.x * f, value.y * f);
   }
+
   template <class> friend std::ostream &operator<<(std::ostream &s, Vec2<t> &v);
 };
 
@@ -33,8 +40,8 @@ template <class t> struct Vec3 {
   };
 
   Vec3() : value{0, 0, 0} {}
-  Vec3(t _x, t _y, t _z) : value(_x, _y, _z) {}
-
+  Vec3(t _x, t _y, t _z) : value{_x, _y, _z} {}
+  
   inline Vec3<t> operator^(const Vec3<t> &v) const {
     return Vec3<t>(value.y * v.value.z - value.z * v.value.y,
                    value.z * v.value.x - value.x * v.value.z,
